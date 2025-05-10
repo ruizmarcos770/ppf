@@ -394,10 +394,24 @@ button, input, textarea, select {
   position: relative;
   z-index: 2;
   color: white;
-  max-width: 800px;
+  max-width: 50%; /* Cambiado de 800px fijo a un porcentaje */
   padding: 0 2rem;
   text-align: left;
-  margin-left: 10%;
+  margin-left: 5%; /* Reducido de 10% a 5% */
+  margin-right: 5%; /* Añadido margen derecho */
+}
+
+/* También puedes añadir esto para asegurar que el texto sea responsive */
+@media (max-width: 992px) {
+  .slide-content {
+    max-width: 80%;
+    margin: 0 auto; /* Centrado en móviles */
+    text-align: center;
+  }
+  
+  .slide-content h1, .slide-content h2 {
+    font-size: 3.2rem; /* Reducir tamaño en pantallas pequeñas */
+  }
 }
 
 .slide-content h1, .slide-content h2 {
