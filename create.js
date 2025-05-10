@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', function() {
   initContactForm();
   setCurrentYear();
   initSmoothScroll();
+  preloadSliderImages();
   
   /**
    * Header con efecto scroll
@@ -101,25 +102,49 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   
   /**
-   * Slider de Hero
+   * Slider de Hero - Versión corregida
    */
   function initHeroSlider() {
     const slides = document.querySelectorAll('.slide');
+    
+    // Verificar si hay slides para evitar errores
+    if (slides.length === 0) {
+      console.warn('No se encontraron slides en el hero slider');
+      return;
+    }
+    
     const dots = document.querySelectorAll('.slider-dots .dot');
-    const prevBtn = document.querySelector('.slider-arrow.prev');
-    const nextBtn = document.querySelector('.slider-arrow.next');
+    const prevBtn = document.querySelector('.hero-slider .slider-arrow.prev');
+    const nextBtn = document.querySelector('.hero-slider .slider-arrow.next');
+    
+    // Verificar si los botones existen
+    if (!prevBtn || !nextBtn) {
+      console.warn('No se encontraron botones de navegación en el slider');
+      return;
+    }
+    
     let currentSlide = 0;
     let slideInterval;
     
     // Función para cambiar slide
     const goToSlide = (index) => {
+      // Validar que el índice sea correcto
+      if (index < 0 || index >= slides.length) {
+        console.error('Índice de slide fuera de rango:', index);
+        return;
+      }
+      
       // Remover clase active de slides y dots
       slides.forEach(slide => slide.classList.remove('active'));
-      dots.forEach(dot => dot.classList.remove('active'));
+      if (dots && dots.length) {
+        dots.forEach(dot => dot.classList.remove('active'));
+      }
       
       // Agregar clase active al slide y dot actual
       slides[index].classList.add('active');
-      dots[index].classList.add('active');
+      if (dots && dots[index]) {
+        dots[index].classList.add('active');
+      }
       
       // Actualizar currentSlide
       currentSlide = index;
@@ -139,38 +164,69 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Iniciar autoplay
     const startAutoplay = () => {
+      // Limpiar cualquier intervalo existente primero
+      stopAutoplay();
       slideInterval = setInterval(nextSlide, 5000); // Cambiar cada 5 segundos
     };
     
     // Detener autoplay
     const stopAutoplay = () => {
-      clearInterval(slideInterval);
+      if (slideInterval) {
+        clearInterval(slideInterval);
+      }
     };
     
     // Eventos de botones
-    prevBtn.addEventListener('click', () => {
+    prevBtn.addEventListener('click', (e) => {
+      e.preventDefault(); // Prevenir comportamiento predeterminado
       prevSlide();
       stopAutoplay();
       startAutoplay();
     });
     
-    nextBtn.addEventListener('click', () => {
+    nextBtn.addEventListener('click', (e) => {
+      e.preventDefault(); // Prevenir comportamiento predeterminado
       nextSlide();
       stopAutoplay();
       startAutoplay();
     });
     
     // Eventos de dots
-    dots.forEach((dot, index) => {
-      dot.addEventListener('click', () => {
-        goToSlide(index);
-        stopAutoplay();
-        startAutoplay();
+    if (dots && dots.length) {
+      dots.forEach((dot, index) => {
+        dot.addEventListener('click', (e) => {
+          e.preventDefault();
+          goToSlide(index);
+          stopAutoplay();
+          startAutoplay();
+        });
       });
-    });
+    }
+    
+    // Pausar autoplay cuando el mouse está sobre el slider
+    const heroSlider = document.querySelector('.hero-slider');
+    if (heroSlider) {
+      heroSlider.addEventListener('mouseenter', stopAutoplay);
+      heroSlider.addEventListener('mouseleave', startAutoplay);
+    }
     
     // Iniciar autoplay al cargar
     startAutoplay();
+  }
+  
+  /**
+   * Precargar imágenes del slider para mejorar rendimiento
+   */
+  function preloadSliderImages() {
+    const slideImages = document.querySelectorAll('.slide img');
+    
+    slideImages.forEach(img => {
+      const src = img.getAttribute('src');
+      if (src) {
+        const preloadImg = new Image();
+        preloadImg.src = src;
+      }
+    });
   }
   
   /**
@@ -196,7 +252,12 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
         // Mostrar el contenido seleccionado
-        document.getElementById(`${category}-content`).classList.add('active');
+        const targetContent = document.getElementById(`${category}-content`);
+        if (targetContent) {
+          targetContent.classList.add('active');
+        } else {
+          console.error(`No se encontró el contenido para la categoría: ${category}`);
+        }
       });
     });
   }
@@ -207,6 +268,8 @@ document.addEventListener('DOMContentLoaded', function() {
   function initProjectFilter() {
     const filterButtons = document.querySelectorAll('.filter-btn');
     const projects = document.querySelectorAll('.project-item');
+    
+    if (!filterButtons.length || !projects.length) return;
     
     filterButtons.forEach(button => {
       button.addEventListener('click', function() {
@@ -247,10 +310,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const dots = document.querySelectorAll('.testimonial-dots .dot');
     const prevBtn = document.querySelector('.testimonial-nav.prev');
     const nextBtn = document.querySelector('.testimonial-nav.next');
-    let currentTestimonial = 0;
     
     // Si no hay elementos, salir
     if (!testimonials.length || !prevBtn || !nextBtn) return;
+    
+    let currentTestimonial = 0;
     
     // Función para cambiar testimonio
     const goToTestimonial = (index) => {
