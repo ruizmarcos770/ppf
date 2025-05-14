@@ -1770,34 +1770,6 @@ button[type="submit"] {
   cursor: pointer;
 }
 
-/* ========================================
-   CORRECCIONES PARA MENÚ MÓVIL 
-   ======================================== */
-
-@media (max-width: 768px) {
-  /* Arreglo para la animación del botón del menú móvil */
-  .mobile-menu-btn.active .bar:nth-child(1) {
-    transform: rotate(-45deg) translate(-5px, 6px);
-  }
-  
-  .mobile-menu-btn.active .bar:nth-child(2) {
-    opacity: 0;
-  }
-  
-  .mobile-menu-btn.active .bar:nth-child(3) {
-    transform: rotate(45deg) translate(-5px, -6px);
-  }
-  
-  /* Mejorar visualización de menú desplegable en móvil */
-  .dropdown-menu.show {
-    display: block;
-    padding-left: 20px;
-    margin-top: 10px;
-    margin-bottom: 10px;
-    background-color: rgba(255, 255, 255, 0.05);
-    border-radius: var(--border-radius-sm);
-  }
-}
 
 /* ========================================
    CORRECCIONES PARA EL MODO ACTIVO DE BOTONES 
