@@ -1581,13 +1581,14 @@ Estilos actualizados para funcionar con Bootstrap
     font-size: 1.6rem;
   }
   
+  /* Menú móvil minimalista */
   .nav-menu {
     position: fixed;
     top: 8rem;
     left: 0;
     width: 100%;
     height: calc(100vh - 8rem);
-    background-color: var(--color-dark);
+    background-color: rgba(10, 25, 33, 0.98);
     flex-direction: column;
     align-items: center;
     padding: 4rem 0;
@@ -1602,18 +1603,26 @@ Estilos actualizados para funcionar con Bootstrap
   }
   
   .nav-menu li {
-    margin: 1.5rem 0;
+    margin: 1rem 0;
+    width: 80%;
+    text-align: center;
+  }
+  
+  .nav-menu > li > a::after {
+    display: none; /* Eliminar subrayado en móvil */
   }
   
   .dropdown-menu {
     position: static;
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.05);
     opacity: 1;
     visibility: visible;
     transform: none;
-    width: 100%;
-    background-color: transparent;
     box-shadow: none;
     display: none;
+    border-radius: 6px;
+    margin-top: 0.5rem;
   }
   
   .dropdown-menu.show {
@@ -1621,7 +1630,11 @@ Estilos actualizados para funcionar con Bootstrap
   }
   
   .dropdown-toggle {
-    flex-direction: column;
+    justify-content: center;
+  }
+  
+  .dropdown.show .dropdown-toggle i {
+    transform: rotate(180deg);
   }
   
   .mobile-menu-btn {
