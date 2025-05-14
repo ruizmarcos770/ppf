@@ -63,29 +63,68 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
   
-  // ==========================================
-  // 4. DROPDOWN MENUS
-  // ==========================================
-  const dropdownToggles = document.querySelectorAll('.dropdown-toggle');
-  
-  dropdownToggles.forEach(toggle => {
-    toggle.addEventListener('click', function(e) {
-      // Comportamiento en móvil
-      if (window.innerWidth <= 768) {
-        e.preventDefault();
-        this.parentElement.classList.toggle('show');
-        const dropdownMenu = this.nextElementSibling;
+// ==========================================
+// 4. DROPDOWN MENUS
+// ==========================================
+const dropdownToggles = document.querySelectorAll('.dropdown-toggle');
+const dropdowns = document.querySelectorAll('.nav-menu .dropdown');
+
+// Función para detectar si estamos en dispositivo móvil
+function isMobile() {
+  return window.innerWidth <= 768;
+}
+
+// Comportamiento en dispositivos de escritorio - HOVER
+if (!isMobile()) {
+  dropdowns.forEach(dropdown => {
+    // Al pasar el mouse por encima, manejar estado hover manualmente
+    dropdown.addEventListener('mouseenter', function() {
+      if (!isMobile()) {
+        const dropdownMenu = this.querySelector('.dropdown-menu');
         if (dropdownMenu) {
-          dropdownMenu.classList.toggle('show');
+          dropdownMenu.style.opacity = '1';
+          dropdownMenu.style.visibility = 'visible';
+          dropdownMenu.style.transform = 'translateY(0)';
+          dropdownMenu.style.pointerEvents = 'auto';
+        }
+      }
+    });
+    
+    // Al quitar el mouse, restaurar estado
+    dropdown.addEventListener('mouseleave', function() {
+      if (!isMobile()) {
+        const dropdownMenu = this.querySelector('.dropdown-menu');
+        if (dropdownMenu) {
+          dropdownMenu.style.opacity = '';
+          dropdownMenu.style.visibility = '';
+          dropdownMenu.style.transform = '';
+          dropdownMenu.style.pointerEvents = '';
         }
       }
     });
   });
-  
-  // Cerrar los dropdowns al hacer clic en cualquier parte
-  document.addEventListener('click', function(event) {
-    const dropdowns = document.querySelectorAll('.dropdown.show');
-    dropdowns.forEach(dropdown => {
+}
+
+// Comportamiento en móvil - CLICK
+dropdownToggles.forEach(toggle => {
+  toggle.addEventListener('click', function(e) {
+    // Comportamiento en móvil
+    if (isMobile()) {
+      e.preventDefault();
+      this.parentElement.classList.toggle('show');
+      const dropdownMenu = this.nextElementSibling;
+      if (dropdownMenu) {
+        dropdownMenu.classList.toggle('show');
+      }
+    }
+  });
+});
+
+// Cerrar los dropdowns al hacer clic en cualquier parte (en móvil)
+document.addEventListener('click', function(event) {
+  if (isMobile()) {
+    const dropdownsShown = document.querySelectorAll('.dropdown.show');
+    dropdownsShown.forEach(dropdown => {
       if (!dropdown.contains(event.target)) {
         dropdown.classList.remove('show');
         const dropdownMenu = dropdown.querySelector('.dropdown-menu');
@@ -94,8 +133,30 @@ document.addEventListener('DOMContentLoaded', function() {
         }
       }
     });
-  });
-  
+  }
+});
+
+// Ajustar al cambiar el tamaño de la ventana
+window.addEventListener('resize', function() {
+  if (!isMobile()) {
+    // En desktop: limpiar cualquier estilo inline añadido en móvil
+    document.querySelectorAll('.dropdown-menu').forEach(menu => {
+      menu.classList.remove('show');
+      menu.style.display = '';
+    });
+    document.querySelectorAll('.dropdown').forEach(dropdown => {
+      dropdown.classList.remove('show');
+    });
+  } else {
+    // En móvil: limpiar cualquier estilo inline añadido para hover
+    document.querySelectorAll('.dropdown-menu').forEach(menu => {
+      menu.style.opacity = '';
+      menu.style.visibility = '';
+      menu.style.transform = '';
+      menu.style.pointerEvents = '';
+    });
+  }
+});
   // ==========================================
   // 5. PESTAÑAS DE PRODUCTOS
   // ==========================================
@@ -239,42 +300,88 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   
   // ==========================================
-  // 8. ENLACES DE NAVEGACIÓN SUAVE
-  // ==========================================
-  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function(e) {
-      const href = this.getAttribute('href');
+// 8. ENLACES DE NAVEGACIÓN SUAVE Y MARCADO DE ACTIVOS
+// ==========================================
+// Marcar enlaces activos según la sección actual
+function setActiveMenuLink() {
+  // Obtener la posición de scroll actual
+  const scrollPosition = window.scrollY;
+  
+  // Revisar todas las secciones y marcar el enlace correspondiente
+  document.querySelectorAll('section[id]').forEach(section => {
+    const sectionTop = section.offsetTop - 100; // Ajuste para considerar el header
+    const sectionHeight = section.offsetHeight;
+    const sectionId = section.getAttribute('id');
+    
+    if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
+      // Remover clase activa de todos los enlaces
+      document.querySelectorAll('.nav-menu a').forEach(link => {
+        link.classList.remove('active');
+      });
       
-      if (href !== '#') {
-        e.preventDefault();
+      // Agregar clase activa al enlace correspondiente
+      const activeLinks = document.querySelectorAll(`a[href="#${sectionId}"]`);
+      activeLinks.forEach(activeLink => {
+        activeLink.classList.add('active');
         
-        const targetElement = document.querySelector(href);
-        
-        if (targetElement) {
-          // Close mobile menu if open
-          if (navMenu && navMenu.classList.contains('active')) {
-            navMenu.classList.remove('active');
-            if (mobileMenuBtn) {
-              mobileMenuBtn.classList.remove('active');
-            }
+        // Si el enlace activo está en un dropdown, marcar también el padre
+        const parentDropdown = activeLink.closest('.dropdown');
+        if (parentDropdown) {
+          const parentToggle = parentDropdown.querySelector('.dropdown-toggle');
+          if (parentToggle) {
+            parentToggle.classList.add('active');
           }
-          
-          const headerOffset = 80; // Ajustar según altura del header
-          const elementPosition = targetElement.getBoundingClientRect().top;
-          const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-          
-          window.scrollTo({
-            top: offsetPosition,
-            behavior: 'smooth'
-          });
-          
-          console.log(`Navegación a sección: ${href}`);
-        } else {
-          console.warn(`Elemento destino no encontrado: ${href}`);
         }
-      }
-    });
+      });
+    }
   });
+}
+
+// Ejecutar al cargar y al hacer scroll
+window.addEventListener('scroll', setActiveMenuLink);
+window.addEventListener('load', setActiveMenuLink);
+
+// Navegación suave para enlaces internos
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+  anchor.addEventListener('click', function(e) {
+    const href = this.getAttribute('href');
+    
+    if (href !== '#') {
+      e.preventDefault();
+      
+      const targetElement = document.querySelector(href);
+      
+      if (targetElement) {
+        // Close mobile menu if open
+        if (navMenu && navMenu.classList.contains('active')) {
+          navMenu.classList.remove('active');
+          if (mobileMenuBtn) {
+            mobileMenuBtn.classList.remove('active');
+          }
+        }
+        
+        const headerOffset = 80; // Ajustar según altura del header
+        const elementPosition = targetElement.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+        
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'smooth'
+        });
+        
+        // Marcar este enlace como activo
+        document.querySelectorAll('.nav-menu a').forEach(link => {
+          link.classList.remove('active');
+        });
+        this.classList.add('active');
+        
+        console.log(`Navegación a sección: ${href}`);
+      } else {
+        console.warn(`Elemento destino no encontrado: ${href}`);
+      }
+    }
+  });
+});
   
   // ==========================================
   // 9. FORMULARIO DE CONTACTO
