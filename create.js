@@ -1,28 +1,175 @@
 // script.js completo con gestión mejorada de botones y eventos
 
 document.addEventListener('DOMContentLoaded', function() {
-  
-  // ==========================================
-  // 1. INICIALIZACIÓN DEL CARRUSEL BOOTSTRAP
-  // ==========================================
-  try {
-    const heroCarouselElement = document.getElementById('heroCarousel');
-    if (heroCarouselElement) {
-      const heroCarousel = new bootstrap.Carousel(heroCarouselElement, {
-        interval: 5000,  // Cambio cada 5 segundos
-        keyboard: true,  // Permitir control con teclado
-        pause: 'hover',  // Pausar al posicionar el cursor
-        wrap: true       // Vuelta continua al final
-      });
-      
-      console.log('Carousel inicializado correctamente');
-    } else {
-      console.warn('Elemento carousel no encontrado en el DOM');
-    }
-  } catch (error) {
-    console.error('Error al inicializar el carousel:', error);
+  // Función para detectar si estamos en móvil o desktop
+  function isMobile() {
+    return window.innerWidth <= 768;
   }
   
+  // Elementos del menú
+  const navLinks = document.querySelectorAll('.nav-menu a');
+  const dropdowns = document.querySelectorAll('.nav-menu .dropdown');
+  const dropdownToggles = document.querySelectorAll('.dropdown-toggle');
+  const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+  const navMenu = document.getElementById('navMenu');
+  
+  // Menú móvil toggle
+  if (mobileMenuBtn && navMenu) {
+    mobileMenuBtn.addEventListener('click', function() {
+      this.classList.toggle('active');
+      navMenu.classList.toggle('active');
+    });
+  }
+  
+  // Marcar enlaces activos según la sección visible
+  function setActiveMenuLink() {
+    const scrollPosition = window.scrollY + 100; // Ajuste para header
+    
+    document.querySelectorAll('section[id]').forEach(section => {
+      const sectionTop = section.offsetTop;
+      const sectionHeight = section.offsetHeight;
+      const sectionId = section.getAttribute('id');
+      
+      if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
+        // Remover clase activa de todos los enlaces
+        navLinks.forEach(link => {
+          link.classList.remove('active');
+          const parentLi = link.closest('li');
+          if (parentLi) {
+            parentLi.classList.remove('active');
+          }
+        });
+        
+        // Activar enlace correspondiente
+        document.querySelectorAll(`a[href="#${sectionId}"]`).forEach(link => {
+          link.classList.add('active');
+          
+          // Si el enlace está en un dropdown, activar también el padre
+          const parentDropdown = link.closest('.dropdown');
+          if (parentDropdown) {
+            const parentToggle = parentDropdown.querySelector('.dropdown-toggle');
+            if (parentToggle) {
+              parentToggle.classList.add('active');
+            }
+            parentDropdown.classList.add('active');
+          }
+        });
+      }
+    });
+  }
+  
+  // Dropdown toggle en móvil
+  dropdownToggles.forEach(toggle => {
+    toggle.addEventListener('click', function(e) {
+      if (isMobile()) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const parent = this.parentElement;
+        const dropdownMenu = this.nextElementSibling;
+        
+        // Cerrar otros dropdowns
+        dropdowns.forEach(dropdown => {
+          if (dropdown !== parent && dropdown.classList.contains('show')) {
+            dropdown.classList.remove('show');
+            const menu = dropdown.querySelector('.dropdown-menu');
+            if (menu) {
+              menu.classList.remove('show');
+            }
+          }
+        });
+        
+        // Alternar current dropdown
+        parent.classList.toggle('show');
+        if (dropdownMenu) {
+          dropdownMenu.classList.toggle('show');
+        }
+      }
+    });
+  });
+  
+  // Navegación suave
+  navLinks.forEach(link => {
+    link.addEventListener('click', function(e) {
+      const href = this.getAttribute('href');
+      
+      // Sólo para enlaces internos
+      if (href.startsWith('#') && href !== '#') {
+        e.preventDefault();
+        
+        const targetSection = document.querySelector(href);
+        if (targetSection) {
+          // Cerrar menú móvil si está abierto
+          if (navMenu && navMenu.classList.contains('active')) {
+            navMenu.classList.remove('active');
+            if (mobileMenuBtn) {
+              mobileMenuBtn.classList.remove('active');
+            }
+          }
+          
+          // Cerrar dropdowns
+          dropdowns.forEach(dropdown => {
+            dropdown.classList.remove('show');
+            const menu = dropdown.querySelector('.dropdown-menu');
+            if (menu) {
+              menu.classList.remove('show');
+            }
+          });
+          
+          // Scroll suave a la sección
+          const headerOffset = 80; // Ajuste para header
+          const elementPosition = targetSection.getBoundingClientRect().top;
+          const offsetPosition = elementPosition + window.scrollY - headerOffset;
+          
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth'
+          });
+          
+          // Marcar enlace como activo
+          navLinks.forEach(navLink => {
+            navLink.classList.remove('active');
+          });
+          this.classList.add('active');
+        }
+      }
+    });
+  });
+  
+  
+  // Animación de elementos al scroll
+  function isElementInViewport(el) {
+    const rect = el.getBoundingClientRect();
+    return (
+      rect.top <= (window.innerHeight || document.documentElement.clientHeight) * 0.8 &&
+      rect.bottom >= 0
+    );
+  }
+  
+  function handleScrollAnimations() {
+    const animatedElements = document.querySelectorAll(
+      '.service-card, .about-content, .about-image, .mission-card, ' +
+      '.product-card, .project-item, .testimonial-content, .contact-form, ' +
+      '.contact-info, .contact-card'
+    );
+    
+    animatedElements.forEach(element => {
+      if (isElementInViewport(element) && !element.classList.contains('animated')) {
+        element.classList.add('animated');
+      }
+    });
+  }
+  
+  // Inicializar animaciones
+  window.addEventListener('scroll', setActiveMenuLink);
+  window.addEventListener('scroll', handleScrollAnimations);
+  window.addEventListener('resize', handleScrollAnimations);
+  window.addEventListener('load', function() {
+    setActiveMenuLink();
+    handleScrollAnimations();
+  });
+});
+ 
   // ==========================================
   // 2. HEADER SCROLL EFFECT
   // ==========================================
@@ -215,89 +362,8 @@ window.addEventListener('resize', function() {
     });
   }
   
-  // ==========================================
-  // 7. SLIDER DE TESTIMONIOS
-  // ==========================================
-  const testimonialSlides = document.querySelectorAll('.testimonial-slide');
-  const testimonialDots = document.querySelectorAll('.testimonial-dots .dot');
-  const testimonialPrev = document.querySelector('.testimonial-nav.prev');
-  const testimonialNext = document.querySelector('.testimonial-nav.next');
+
   
-  if (testimonialSlides.length > 0) {
-    let currentSlide = 0;
-    let testimonialInterval;
-    
-    // Function to show a specific slide
-    function showSlide(index) {
-      // Hide all slides
-      testimonialSlides.forEach(slide => slide.classList.remove('active'));
-      testimonialDots.forEach(dot => dot.classList.remove('active'));
-      
-      // Show the current slide
-      testimonialSlides[index].classList.add('active');
-      if (testimonialDots[index]) {
-        testimonialDots[index].classList.add('active');
-      }
-      
-      currentSlide = index;
-    }
-    
-    // Initialize with first slide
-    showSlide(0);
-    
-    // Next slide
-    if (testimonialNext) {
-      testimonialNext.addEventListener('click', function() {
-        clearInterval(testimonialInterval); // Reset autoplay timer on manual navigation
-        currentSlide = (currentSlide + 1) % testimonialSlides.length;
-        showSlide(currentSlide);
-        startAutoSlide(); // Restart autoplay
-      });
-    }
-    
-    // Previous slide
-    if (testimonialPrev) {
-      testimonialPrev.addEventListener('click', function() {
-        clearInterval(testimonialInterval); // Reset autoplay timer on manual navigation
-        currentSlide = (currentSlide - 1 + testimonialSlides.length) % testimonialSlides.length;
-        showSlide(currentSlide);
-        startAutoSlide(); // Restart autoplay
-      });
-    }
-    
-    // Testimonial dot navigation
-    testimonialDots.forEach((dot, index) => {
-      dot.addEventListener('click', function() {
-        clearInterval(testimonialInterval); // Reset autoplay timer on manual navigation
-        showSlide(index);
-        startAutoSlide(); // Restart autoplay
-      });
-    });
-    
-    // Auto advance testimonials
-    function startAutoSlide() {
-      testimonialInterval = setInterval(function() {
-        if (document.visibilityState === 'visible') {
-          currentSlide = (currentSlide + 1) % testimonialSlides.length;
-          showSlide(currentSlide);
-        }
-      }, 8000);
-    }
-    
-    startAutoSlide(); // Start autoplay on page load
-    
-    // Pause autoplay when hovering over testimonials
-    const testimonialContainer = document.querySelector('.testimonials-slider');
-    if (testimonialContainer) {
-      testimonialContainer.addEventListener('mouseenter', function() {
-        clearInterval(testimonialInterval);
-      });
-      
-      testimonialContainer.addEventListener('mouseleave', function() {
-        startAutoSlide();
-      });
-    }
-  }
   
   // ==========================================
 // 8. ENLACES DE NAVEGACIÓN SUAVE Y MARCADO DE ACTIVOS
