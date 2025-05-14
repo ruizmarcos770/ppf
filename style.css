@@ -205,7 +205,7 @@ button, input, textarea, select {
   transform: translateY(-3px);
 }
 
-/* Header y Navegación */
+/* Header y Navegación - Versión minimalista */
 .main-header {
   position: fixed;
   top: 0;
@@ -249,30 +249,55 @@ button, input, textarea, select {
   height: 4rem;
 }
 
+/* Estilos del menú - Versión minimalista */
 .nav-menu {
   display: flex;
   align-items: center;
+  gap: 20px; /* Espacio uniforme entre elementos */
 }
 
 .nav-menu li {
   position: relative;
-  margin: 0 1rem;
+  margin: 0;
 }
 
 .nav-menu a {
   color: var(--color-light);
   font-size: 1.5rem;
   font-weight: 500;
-  padding: 1rem;
+  padding: 1.5rem 1rem;
   display: block;
-  transition: color var(--transition-fast);
+  transition: color 0.3s ease;
+  position: relative;
 }
 
-.nav-menu a:hover {
+/* Estilo minimalista para subrayado */
+.nav-menu > li > a::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background-color: var(--color-secondary);
+  transition: width 0.3s ease, left 0.3s ease;
+  transform: translateX(-50%);
+}
+
+.nav-menu > li:hover > a::after,
+.nav-menu > li > a.active::after,
+.nav-menu > li.active > a::after {
+  width: 70%; /* Línea más corta para un look minimalista */
+}
+
+/* Enlaces activos y hover */
+.nav-menu a:hover,
+.nav-menu a.active,
+.nav-menu li.active > a {
   color: var(--color-secondary);
 }
 
-/* Dropdown Menu */
+/* Dropdown Menu estilo minimalista */
 .dropdown {
   position: relative;
 }
@@ -280,33 +305,32 @@ button, input, textarea, select {
 .dropdown-toggle {
   display: flex;
   align-items: center;
+  gap: 5px; /* Espacio entre texto e icono */
 }
 
 .dropdown-toggle i {
-  margin-left: 0.5rem;
-  font-size: 1.2rem;
+  font-size: 1rem; /* Icono más pequeño */
+  transition: transform 0.3s ease;
+}
+
+.dropdown:hover .dropdown-toggle i {
+  transform: rotate(180deg);
 }
 
 .dropdown-menu {
   position: absolute;
   top: 100%;
   left: 0;
-  width: 24rem;
-  background-color: var(--color-dark);
-  border-radius: var(--border-radius-sm);
-  padding: 1rem 0;
-  box-shadow: var(--box-shadow-medium);
+  min-width: 220px;
+  background-color: rgba(10, 25, 33, 0.95);
+  border-radius: 6px;
+  padding: 0.8rem 0;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
   opacity: 0;
   visibility: hidden;
   transform: translateY(10px);
-  transition: all var(--transition-fast);
-  z-index: 10;
-}
-
-.dropdown:hover .dropdown-menu {
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(0);
+  transition: all 0.3s ease;
+  z-index: 1000;
 }
 
 .dropdown-menu li {
@@ -314,12 +338,15 @@ button, input, textarea, select {
 }
 
 .dropdown-menu a {
-  padding: 1rem 2rem;
+  padding: 0.8rem 1.5rem;
   font-size: 1.4rem;
+  transition: all 0.3s ease;
 }
 
 .dropdown-menu a:hover {
   background-color: rgba(255, 255, 255, 0.05);
+  color: var(--color-secondary);
+  padding-left: 2rem; /* Efecto de indentación al hover */
 }
 
 /* Mobile Menu Button */
@@ -339,7 +366,6 @@ button, input, textarea, select {
   margin: 6px 0;
   transition: all 0.3s;
 }
-
 /* 
 =========================================
 AUTOSHIELD - CORRECCIÓN PARA HERO SLIDER
