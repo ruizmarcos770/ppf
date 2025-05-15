@@ -53,7 +53,8 @@ body {
   color: var(--dark-color);
   line-height: 1.6;
   overflow-x: hidden;
-  background-color: #fff;
+  background-color: #fff; /* Asegurarse de que el fondo sea blanco */
+  padding-top: var(--header-height); /* Importante para el header fixed */
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -205,7 +206,7 @@ img {
 }
 
 /* ===== HEADER & NAVEGACIÓN ===== */
-.main-header {
+header.main-header {
   position: fixed;
   top: 0;
   left: 0;
@@ -217,12 +218,18 @@ img {
   height: var(--header-height);
 }
 
-.main-header.sticky {
+header.main-header.sticky {
   height: var(--header-height-sticky);
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
-.main-nav {
+/* Corrección para Bootstrap */
+header.main-header .container {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+nav.main-nav {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -243,14 +250,17 @@ img {
   height: 40px;
 }
 
-.nav-menu {
+ul.nav-menu {
   display: flex;
   align-items: center;
+  margin-bottom: 0; /* Corrige margen de Bootstrap */
+  padding-left: 0; /* Corrige padding de Bootstrap */
 }
 
 .nav-menu li {
   position: relative;
   margin-left: 30px;
+  list-style: none;
 }
 
 .nav-menu a {
@@ -262,6 +272,7 @@ img {
   color: var(--primary-color);
   padding: 10px 0;
   position: relative;
+  text-decoration: none;
 }
 
 .nav-menu a::after {
@@ -285,7 +296,7 @@ img {
 }
 
 /* Dropdown */
-.dropdown {
+li.dropdown {
   position: relative;
 }
 
@@ -299,7 +310,7 @@ img {
   transform: rotate(180deg);
 }
 
-.dropdown-menu {
+ul.dropdown-menu {
   position: absolute;
   top: 100%;
   left: -20px;
@@ -313,6 +324,8 @@ img {
   transform: translateY(10px);
   transition: var(--transition);
   z-index: 100;
+  margin: 0; /* Corrige margen de Bootstrap */
+  border: none; /* Quita bordes de Bootstrap */
 }
 
 .dropdown:hover .dropdown-menu,
@@ -320,6 +333,7 @@ img {
   opacity: 1;
   visibility: visible;
   transform: translateY(0);
+  display: block;
 }
 
 .dropdown-menu a {
@@ -331,7 +345,7 @@ img {
 }
 
 /* Menú móvil */
-.mobile-menu-btn {
+button.mobile-menu-btn {
   display: none;
   background: none;
   border: none;
@@ -351,13 +365,15 @@ img {
 
 /* ===== HERO SLIDER ===== */
 .hero-slider {
-  margin-top: var(--header-height);
+  margin-top: 0; /* Cambio importante */
+  position: relative;
 }
 
 .carousel-item {
   height: 80vh;
   min-height: 500px;
   background-color: var(--dark-color);
+  position: relative;
 }
 
 .carousel-item img {
@@ -374,6 +390,7 @@ img {
   text-align: left;
   max-width: 600px;
   left: 5%;
+  position: absolute;
 }
 
 .carousel-caption h1,
